@@ -1,37 +1,38 @@
 const { log, getOld, getNew, bytesToSize } = require("./util.js");
 
-function saveData(traffic, earnings){
-    const mysql = require('mysql');
-    const mysql_config = require("../mysql-db.json");
+module.exports = async (client, postman) => {
 
-    if (!mysql_config.enabled){
-        return;
-    }
+    function saveData(traffic, earnings){
+        const mysql = require('mysql');
+        const mysql_config = require("../mysql-db.json");
 
-    const con = mysql.createConnection({
-        host: mysql_config.host,
-        user: mysql_config.user,
-        password: mysql_config.password,
-        database: mysql_config.database
-    });
-
-    con.connect(function(err) {
-        if (err) {
-            throw err;
+        if (!mysql_config.enabled){
+            return;
         }
-        console.log("Connected with success!");
-        var sql = "INSERT INTO earnings (time, traffic, earnings) VALUES (?,?,?)";
-        var items = [Date.now(), traffic, earnings];
-        con.query(sql, items, function (err, result) {
+
+        const con = mysql.createConnection({
+            host: mysql_config.host,
+            user: mysql_config.user,
+            password: mysql_config.password,
+            database: mysql_config.database
+        });
+
+        con.connect(function(err) {
             if (err) {
                 throw err;
             }
-            console.log("Inserito con successo: " + result);
+            console.log("Connected with success!");
+            var sql = "INSERT INTO earnings (time, traffic, earnings) VALUES (?,?,?)";
+            var items = [new Date(), traffic, earnings];
+            con.query(sql, items, function (err) {
+                if (err) {
+                    throw err;
+                }
+                console.log("Data uploaded to DB with success!");
+            });
         });
-    });
-}
+    }
 
-module.exports = async (client, postman) => {
     const embed = {
         title: "EarnApp gains report",
         thumbnail: {
@@ -57,6 +58,7 @@ module.exports = async (client, postman) => {
     let winCount = 0;
     let linuxCount = 0;
 
+
     oldEarnings.filter((device) => device.earned > 0).forEach((device) => (oldTraffic += device.bw));
     active.forEach((device) => {
         newTraffic += device.bw;
@@ -67,6 +69,8 @@ module.exports = async (client, postman) => {
         if (device.uuid.includes("win")) winCount += 1;
         if (device.uuid.includes("node")) linuxCount += 1;
     });
+
+    saveData((newTraffic - oldTraffic).toFixed(1), difference.toFixed(2))
 
     const bottom = () => {
         if (newStats.redeem_details) {
@@ -89,7 +93,6 @@ module.exports = async (client, postman) => {
     };
 
     if (difference > 0) {
-        saveData(bytesToSize((newTraffic - oldTraffic).toFixed(1)), difference.toFixed(2));
         embed.color = 0x00bb6e;
         embed.description = "Balance update";
         embed.fields.push(
