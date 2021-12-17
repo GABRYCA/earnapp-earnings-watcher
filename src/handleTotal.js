@@ -1,5 +1,36 @@
 const { log, getOld, getNew, bytesToSize } = require("./util.js");
 
+function saveData(traffic, earnings){
+    const mysql = require('mysql');
+    const mysql_config = require("../mysql-db.json");
+
+    if (!mysql_config.enabled){
+        return;
+    }
+
+    const con = mysql.createConnection({
+        host: mysql_config.host,
+        user: mysql_config.user,
+        password: mysql_config.password,
+        database: mysql_config.database
+    });
+
+    con.connect(function(err) {
+        if (err) {
+            throw err;
+        }
+        console.log("Connected with success!");
+        var sql = "INSERT INTO earnings (time, traffic, earnings) VALUES (?,?,?)";
+        var items = [Date.now(), traffic, earnings];
+        con.query(sql, items, function (err, result) {
+            if (err) {
+                throw err;
+            }
+            console.log("Inserito con successo: " + result);
+        });
+    });
+}
+
 module.exports = async (client, postman) => {
     const embed = {
         title: "EarnApp gains report",
@@ -58,6 +89,7 @@ module.exports = async (client, postman) => {
     };
 
     if (difference > 0) {
+        saveData(bytesToSize((newTraffic - oldTraffic).toFixed(1)), difference.toFixed(2));
         embed.color = 0x00bb6e;
         embed.description = "Balance update";
         embed.fields.push(

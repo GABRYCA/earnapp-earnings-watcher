@@ -1,0 +1,7 @@
+{
+  "enabled": false,
+  "host": "adddresstodatabasehost",
+  "user": "databaseusername",
+  "password": "databaseaccesspassword",
+  "database": "nameofdatabase"
+}

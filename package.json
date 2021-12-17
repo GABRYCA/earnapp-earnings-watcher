@@ -12,6 +12,7 @@
     "dependencies": {
         "axios": "^0.24.0",
         "earnapp.js": "^1.0.3",
+        "mysql": "^2.18.1",
         "simple-discord-webhooks": "^1.1.1"
     },
     "repository": {
