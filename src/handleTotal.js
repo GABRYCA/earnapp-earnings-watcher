@@ -17,6 +17,11 @@ module.exports = async (client, postman) => {
             database: mysql_config.database
         });
 
+        // Convert to MB, is what I want.
+        if (traffic > 0){
+            traffic = (traffic / (1024 ** 2)).toFixed(2);
+        }
+
         con.connect(function(err) {
             if (err) {
                 throw err;
@@ -86,7 +91,7 @@ module.exports = async (client, postman) => {
         if (device.uuid.includes("node")) linuxCount += 1;
     });
 
-    saveData(bytesToSize((newTraffic - oldTraffic).toFixed(1)), difference.toFixed(2))
+    saveData((newTraffic - oldTraffic).toFixed(1), difference.toFixed(2))
 
     const bottom = () => {
         if (newStats.redeem_details) {
