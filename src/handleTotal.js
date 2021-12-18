@@ -22,13 +22,29 @@ module.exports = async (client, postman) => {
                 throw err;
             }
             console.log("Connected with success!");
+
+            con.query("CREATE DATABASE IF NOT EXISTS earnapp_anonymousgca", function (err, result){
+               if (err){
+                   throw err;
+               }
+               console.log("If database didn't exists, it got created now with success! [" + result + "]");
+            });
+
+            con.query("CREATE TABLE IF NOT EXISTS earnings (time datetime, traffic double, earnings double)", function (err, result){
+               if (err){
+                   throw err;
+               }
+               console.log("If table didn't exists, it got created now with success! [" + result + "]");
+            });
+
+            // Add data.
             var sql = "INSERT INTO earnings (time, traffic, earnings) VALUES (?,?,?)";
             var items = [new Date(), traffic, earnings];
-            con.query(sql, items, function (err) {
+            con.query(sql, items, function (err, result) {
                 if (err) {
                     throw err;
                 }
-                console.log("Data uploaded to DB with success!");
+                console.log("Data uploaded to DB with success! [" + result + "]");
             });
         });
     }
