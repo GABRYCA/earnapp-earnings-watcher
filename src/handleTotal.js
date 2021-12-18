@@ -1,4 +1,6 @@
 const { log, getOld, getNew, bytesToSize } = require("./util.js");
+const mysql = require("mysql");
+const mysql_config = require("../mysql-db.json");
 
 module.exports = async (client, postman) => {
 
@@ -10,11 +12,11 @@ module.exports = async (client, postman) => {
             return;
         }
 
-        const con = mysql.createConnection({
+        // To check and create the database if missing.
+        const conCheck = mysql.createConnection({
             host: mysql_config.host,
             user: mysql_config.user,
             password: mysql_config.password,
-            database: mysql_config.database
         });
 
         // Convert to MB, is what I want.
@@ -31,19 +33,37 @@ module.exports = async (client, postman) => {
             earnings = 0;
         }
 
-        con.connect(function(err) {
+        // Check if database exists, if not create a new one.
+        conCheck.connect(function (err){
             if (err) {
                 throw err;
             }
             console.log("Connected with success!");
 
             con.query("CREATE DATABASE IF NOT EXISTS " + mysql_config.database, function (err, result){
-               if (err){
-                   throw err;
-               }
-               console.log("If database didn't exists, it got created now with success! [" + result + "]");
+                if (err){
+                    throw err;
+                }
+                console.log("If database didn't exists, it got created now with success! [" + result + "]");
             });
+        });
 
+        // To add data to the database.
+        const con = mysql.createConnection({
+            host: mysql_config.host,
+            user: mysql_config.user,
+            password: mysql_config.password,
+            database: mysql_config.database
+        });
+
+        // Connect to the database and create tables if missing and then add values.
+        con.connect(function(err) {
+            if (err) {
+                throw err;
+            }
+            console.log("Connected with success (again)!");
+
+            // Create table if missing.
             con.query("CREATE TABLE IF NOT EXISTS earnings (time datetime, traffic double, earnings double)", function (err, result){
                if (err){
                    throw err;
@@ -52,8 +72,8 @@ module.exports = async (client, postman) => {
             });
 
             // Add data.
-            var sql = "INSERT INTO earnings (time, traffic, earnings) VALUES (?,?,?)";
-            var items = [new Date(), traffic, earnings];
+            const sql = "INSERT INTO earnings (time, traffic, earnings) VALUES (?,?,?)";
+            const items = [new Date(), traffic, earnings];
             con.query(sql, items, function (err, result) {
                 if (err) {
                     throw err;
