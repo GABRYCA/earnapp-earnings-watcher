@@ -22,6 +22,15 @@ module.exports = async (client, postman) => {
             traffic = (traffic / (1024 ** 2)).toFixed(2);
         }
 
+        // I don't want negative values as they would break statistically.
+        if (traffic < 0){
+            traffic = 0;
+        }
+
+        if (earnings < 0){
+            earnings = 0;
+        }
+
         con.connect(function(err) {
             if (err) {
                 throw err;
