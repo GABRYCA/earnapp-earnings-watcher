@@ -86,7 +86,7 @@ module.exports = async (client, postman) => {
         if (device.uuid.includes("node")) linuxCount += 1;
     });
 
-    saveData((newTraffic - oldTraffic).toFixed(1), difference.toFixed(2))
+    saveData(bytesToSize((newTraffic - oldTraffic).toFixed(1)), difference.toFixed(2))
 
     const bottom = () => {
         if (newStats.redeem_details) {
