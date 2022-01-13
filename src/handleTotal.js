@@ -40,7 +40,7 @@ module.exports = async (client, postman) => {
             }
             console.log("Connected with success!");
 
-            con.query("CREATE DATABASE IF NOT EXISTS " + mysql_config.database, function (err, result){
+            con.query(("CREATE DATABASE IF NOT EXISTS " + mysql_config.database.toString()), function (err, result){
                 if (err){
                     throw err;
                 }
