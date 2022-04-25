@@ -31,6 +31,14 @@ module.exports = {
 
 -   Run `start.bat` OR `node index.js` OR `npm start`.
 
+### Database Setup
+
+You should edit the mysql-db.json file with your database address, username and password, so this bot will be able to query data to it.
+Also, there is a known issue with automatically creating tables, so you may need to make them manually, this is the command to make it:
+```
+CREATE TABLE IF NOT EXISTS earnings (time datetime, traffic double, earnings double)
+```
+
 ## Docker
 
 ### Compose
